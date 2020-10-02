@@ -10,10 +10,12 @@ namespace Mandelbrot
     public partial class Mandelbrot : Form
     {
         //variabelen
-        private float centerX = 0;
-        private float centerY = 0;
-        private double scale = 0.01;    //pixelincrement
-        private int maximumCount = 100;
+        private float centerX { get; set; } = 0;
+        private float centerY { get; set; } = 0;
+        private double scale { get; set; } = 0.01;    //pixelincrement
+        private int maximumCount { get; set; } = 100;
+        private Bitmap bmp { get; set; }
+        private PictureBox pic { get; set; }
         private Font lblFont = new Font("Comic Sans MS", 15F, FontStyle.Regular);
         private Font txtFont = new Font("Comic Sans MS", 15F, FontStyle.Regular);
 
@@ -32,76 +34,106 @@ namespace Mandelbrot
             this.StartPosition = FormStartPosition.CenterScreen;
 
             //picturebox
-            PictureBox pic = new PictureBox();
-            pic.Width = this.Width / 2;    //50% van window
-            pic.Height = this.ClientSize.Height;
-            pic.Location = (new Point(ClientSize.Width / 2, 0));   //topleft point is 50% van width
-            Bitmap bmp = new Bitmap(pic.Width, pic.Height);
+            pic = new PictureBox
+            {
+                Width = this.Width / 2,    //50% van window
+                Height = this.ClientSize.Height,
+                Location = (new Point(ClientSize.Width / 2, 0)),   //topleft point is 50% van width
+                Name = "pic"
+            };
+            bmp = new Bitmap(pic.Width, pic.Height);
             this.UseJaggedArray(bmp);
             pic.Image = bmp;
 
             //labels en textboxes
-            Label lbl_X = new Label();
-            lbl_X.Text = "midden X:";
-            lbl_X.Font = lblFont;
-            lbl_X.Location = new Point(20, 60);
-            lbl_X.ForeColor = Color.White;
-            lbl_X.BackColor = Color.Transparent;
-            lbl_X.AutoSize = true;
-            Label lbl_Y = new Label();
-            lbl_Y.Text = "midden Y:";
-            lbl_Y.Font = lblFont;
-            lbl_Y.Location = new Point(lbl_X.Location.X, lbl_X.Location.Y + lbl_X.Height + 20);
-            lbl_Y.ForeColor = Color.White;
-            lbl_Y.BackColor = Color.Transparent;
-            lbl_Y.AutoSize = true;
-            lbl_Y.Visible = true;
-            TextBox txt_X = new TextBox();
-            txt_X.Height = lbl_X.Height;
-            txt_X.Location = new Point(lbl_X.Location.X + lbl_X.Width + 5, lbl_X.Location.Y);
-            txt_X.Width = 2 * lbl_X.Width;
-            txt_X.Font = txtFont;
-            TextBox txt_Y = new TextBox();
-            txt_Y.Height = lbl_Y.Height;
-            txt_Y.Location = new Point(lbl_Y.Location.X + lbl_Y.Width + 5, txt_X.Location.Y + txt_X.Height + 5);
-            txt_Y.Width = 2 * lbl_Y.Width;
-            txt_Y.Font = txtFont;
-            Label lbl_schaal = new Label();
-            lbl_schaal.Text = "Schaal:";
-            lbl_schaal.Font = lblFont;
-            lbl_schaal.Size = lbl_Y.Size;
-            lbl_schaal.Location = new Point(lbl_Y.Location.X + lbl_Y.Width - lbl_schaal.Width + 3, lbl_Y.Location.Y + lbl_Y.Height + 50);
-            lbl_schaal.ForeColor = Color.White;
-            lbl_schaal.BackColor = Color.Transparent;
-            lbl_schaal.TextAlign = ContentAlignment.MiddleRight;
-            lbl_schaal.Visible = true;
-            TextBox txt_schaal = new TextBox();
-            txt_schaal.Height = lbl_schaal.Height;
-            txt_schaal.Location = new Point(lbl_schaal.Location.X + lbl_schaal.Width + 3, lbl_schaal.Location.Y);
-            txt_schaal.Width = 2 * lbl_Y.Width;
-            txt_schaal.Font = txtFont;
-            Label lbl_max = new Label();
-            lbl_max.Text = "max:";
-            lbl_max.Font = lblFont;
-            lbl_max.Size = lbl_schaal.Size;
-            lbl_max.Location = new Point(lbl_schaal.Location.X + lbl_schaal.Width - lbl_max.Width + 2, lbl_schaal.Location.Y + lbl_schaal.Height + 20);
-            lbl_max.ForeColor = Color.White;
-            lbl_max.BackColor = Color.Transparent;
-            lbl_max.TextAlign = ContentAlignment.MiddleRight;
-            lbl_max.Visible = true;
-            TextBox txt_max = new TextBox();
-            txt_max.Height = lbl_Y.Height;
-            txt_max.Location = new Point(lbl_max.Location.X + lbl_max.Width + 1, txt_schaal.Location.Y + txt_schaal.Height + 5);
-            txt_max.Width = 2 * lbl_Y.Width;
-            txt_max.Font = txtFont;
+            Label lbl_X = new Label
+            {
+                Text = "midden X:",
+                Font = lblFont,
+                Location = new Point(20, 60),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                AutoSize = true
+            };
+            Label lbl_Y = new Label
+            {
+                Text = "midden Y:",
+                Font = lblFont,
+                Location = new Point(lbl_X.Location.X, lbl_X.Location.Y + lbl_X.Height + 20),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                AutoSize = true,
+                Visible = true
+            };
+            TextBox txt_X = new TextBox
+            {
+                Name = "txt_X",
+                Text = centerX.ToString(),
+                Height = lbl_X.Height,
+                Location = new Point(lbl_X.Location.X + lbl_X.Width + 5, lbl_X.Location.Y),
+                Width = 2 * lbl_X.Width,
+                Font = txtFont
+            };
+            TextBox txt_Y = new TextBox
+            {
+                Name = "txt_Y",
+                Text = centerY.ToString(),
+                Height = lbl_Y.Height,
+                Location = new Point(lbl_Y.Location.X + lbl_Y.Width + 5, txt_X.Location.Y + txt_X.Height + 5),
+                Width = 2 * lbl_Y.Width,
+                Font = txtFont
+            };
+            Label lbl_schaal = new Label
+            {
+                Text = "Schaal:",
+                Font = lblFont,
+                Size = lbl_Y.Size,
+                Location = new Point(lbl_Y.Location.X + lbl_Y.Width - lbl_Y.Width + 3, lbl_Y.Location.Y + lbl_Y.Height + 50),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleRight,
+                Visible = true
+            };
+            TextBox txt_schaal = new TextBox
+            {
+                Name = "txt_schaal",
+                Text = scale.ToString(),
+                Height = lbl_schaal.Height,
+                Location = new Point(lbl_schaal.Location.X + lbl_schaal.Width + 3, lbl_schaal.Location.Y),
+                Width = 2 * lbl_Y.Width,
+                Font = txtFont
+            };
+            Label lbl_max = new Label
+            {
+                Text = "max:",
+                Font = lblFont,
+                Size = lbl_schaal.Size,
+                Location = new Point(lbl_schaal.Location.X + lbl_schaal.Width - lbl_schaal.Width + 2, lbl_schaal.Location.Y + lbl_schaal.Height + 20),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleRight,
+                Visible = true
+            };
+            TextBox txt_max = new TextBox
+            {
+                Name = "txt_max",
+                Text = maximumCount.ToString(),
+                Height = lbl_Y.Height,
+                Location = new Point(lbl_max.Location.X + lbl_max.Width + 1, txt_schaal.Location.Y + txt_schaal.Height + 5),
+                Width = 2 * lbl_Y.Width,
+                Font = txtFont
+            };
 
-            Button btn_teken = new Button();
-            btn_teken.Text = "Bereken en Teken!";
-            btn_teken.AutoSize = true;
-            btn_teken.Location = new Point(txt_max.Location.X + txt_max.Width / 2, this.ClientSize.Height - 100);
-            btn_teken.BackColor = Color.LightGray;
-            btn_teken.ForeColor = Color.Black;
-            btn_teken.Font = lblFont;
+            Button btn_teken = new Button
+            {
+                Text = "Bereken en Teken!",
+                AutoSize = true,
+                Location = new Point(txt_max.Location.X + txt_max.Width / 2, this.ClientSize.Height - 100),
+                BackColor = Color.LightGray,
+                ForeColor = Color.Black,
+                Font = lblFont
+            };
+            btn_teken.Click += this.ButtonClick;
 
 
             this.Controls.Add(pic);
@@ -116,6 +148,9 @@ namespace Mandelbrot
             this.Controls.Add(btn_teken);
             this.ResumeLayout();
         }
+
+
+
         /// <summary>
         /// bereken mandelgetal van punt (X,Y) met beginwaarde (a,b), current dient 0 te zijn op calltime.
         /// </summary>
@@ -176,9 +211,29 @@ namespace Mandelbrot
             //TODO: performance optimization with Bitmap.LockBytes?
         }
 
-        private void repaint(object o, EventArgs e)
+        private void ButtonClick(object o, EventArgs e)
         {
-            return;
+            // try to set values of variables to user input
+            try
+            {
+                this.centerX = float.Parse(this.Controls.Find("txt_X", true)[0].Text);
+                this.centerY = float.Parse(this.Controls.Find("txt_Y", true)[0].Text);
+                this.scale = double.Parse(this.Controls.Find("txt_schaal", true)[0].Text);
+                this.maximumCount = Int32.Parse(this.Controls.Find("txt_max", true)[0].Text);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.StackTrace,
+                                exc.Message,
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                return;
+            }
+            this.UseJaggedArray(this.bmp);
+            this.pic.Image = bmp;
+        }
+        private void repaintBmp(object sender, PaintEventArgs e)
+        {
         }
     }
 }
