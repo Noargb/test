@@ -144,7 +144,7 @@ namespace Mandelbrot
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cmb_kleur.DropDownHeight = cmb_kleur.ItemHeight * 3;
-            
+
 
             Label lbl_kleur = new Label
             {
@@ -167,9 +167,9 @@ namespace Mandelbrot
                 Font = lblFont
             };
 
-            btn_teken.Click += this.ButtonClick;
+            btn_teken.MouseClick += this.ButtonClick;
             cmb_kleur.SelectedValueChanged += this.Cmb_kleur_SelectedValueChanged;
-            pic.MouseClick += this.ZoomClick;
+            pic.MouseClick += this.bmpClick;
 
 
 
@@ -194,14 +194,25 @@ namespace Mandelbrot
             this.currentColorMode = (ColorMode)temp.SelectedValue;
         }
 
-        private void ZoomClick(object sender, MouseEventArgs mea)
+        private void bmpClick(object sender, MouseEventArgs mea)
         {
             double min_X = centerX - (bmp.Width / 2 * scale); //minvalue for x coordinate
             double max_Y = centerY + (bmp.Height / 2 * scale);
-
+            //translate center to mousepos in graphcoords
             this.centerX = Convert.ToSingle(min_X + scale * mea.X);
             this.centerY = Convert.ToSingle(max_Y + scale * mea.Y * -1);
-            this.scale /= 2;
+            switch (mea.Button)
+            {
+                case MouseButtons.Left:
+                    this.scale /= 2;        //zoom in, center on mouse
+                    break;
+                case MouseButtons.Right:
+                    this.scale *= 2;        //zoom out, center on mouse
+                    break;
+                default:
+                    break;
+            }
+
             this.Controls.Find("txt_X", true)[0].Text = centerX.ToString();
             this.Controls.Find("txt_Y", true)[0].Text = centerY.ToString();
             this.Controls.Find("txt_schaal", true)[0].Text = scale.ToString();
