@@ -30,7 +30,7 @@ namespace Mandelbrot
             this.ClientSize = new Size(1000, 500);          //height should be width/2 for 1:1 picture scaling
             this.Name = "MandelBrot";
             this.Text = "MandelBrot";
-            this.BackColor = Color.Black;
+            this.BackColor = Color.DarkBlue;
             this.StartPosition = FormStartPosition.CenterScreen;
 
             //picturebox
@@ -44,6 +44,7 @@ namespace Mandelbrot
             bmp = new Bitmap(pic.Width, pic.Height);
             this.UseJaggedArray(bmp);
             pic.Image = bmp;
+            pic.MouseClick += this.ZoomClick;
 
             //labels en textboxes
             Label lbl_X = new Label
@@ -128,7 +129,7 @@ namespace Mandelbrot
             {
                 Text = "Bereken en Teken!",
                 AutoSize = true,
-                Location = new Point(txt_max.Location.X + txt_max.Width / 2, this.ClientSize.Height - 100),
+                Location = new Point(txt_max.Location.X, this.ClientSize.Height - 100),
                 BackColor = Color.LightGray,
                 ForeColor = Color.Black,
                 Font = lblFont
@@ -147,6 +148,21 @@ namespace Mandelbrot
             this.Controls.Add(txt_schaal);
             this.Controls.Add(btn_teken);
             this.ResumeLayout();
+        }
+
+        private void ZoomClick(object sender, MouseEventArgs mea)
+        {
+            double min_X = centerX - (bmp.Width / 2 * scale); //minvalue for x coordinate
+            double max_Y = centerY + (bmp.Height / 2 * scale);
+
+            this.centerX = Convert.ToSingle(min_X + scale * mea.X);
+            this.centerY = Convert.ToSingle(max_Y + scale * mea.Y * -1);
+            this.scale /= 2;
+            this.Controls.Find("txt_X", true)[0].Text = centerX.ToString();
+            this.Controls.Find("txt_Y", true)[0].Text = centerY.ToString();
+            this.Controls.Find("txt_schaal", true)[0].Text = scale.ToString();
+            this.UseJaggedArray(this.bmp);
+            this.pic.Image = this.bmp;
         }
 
 
@@ -181,7 +197,7 @@ namespace Mandelbrot
 
             double min_X = centerX - (bmp.Width / 2 * scale); //minvalue for x coordinate
             //double max_X = centerX + (bmp.Height / 2 * scale);
-            double min_Y = centerY - (bmp.Height / 2 * scale); //minvalue for y coordinate
+            //double min_Y = centerY - (bmp.Height / 2 * scale); //minvalue for y coordinate
             double max_Y = centerY + (bmp.Height / 2 * scale);
 
 
@@ -231,9 +247,6 @@ namespace Mandelbrot
             }
             this.UseJaggedArray(this.bmp);
             this.pic.Image = bmp;
-        }
-        private void repaintBmp(object sender, PaintEventArgs e)
-        {
         }
     }
 }
