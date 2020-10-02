@@ -9,11 +9,17 @@ namespace Mandelbrot
 {
     public partial class Mandelbrot : Form
     {
-        //variabelen
+        //variabelen enzo
+        private enum ColorMode
+        {
+            zwartwit,
+            grijsschaal
+        }
         private float centerX { get; set; } = 0;
         private float centerY { get; set; } = 0;
         private double scale { get; set; } = 0.01;    //pixelincrement
         private int maximumCount { get; set; } = 100;
+        private ColorMode currentColorMode { get; set; } = ColorMode.zwartwit;
         private Bitmap bmp { get; set; }
         private PictureBox pic { get; set; }
         private Font lblFont = new Font("Comic Sans MS", 15F, FontStyle.Regular);
@@ -41,10 +47,10 @@ namespace Mandelbrot
                 Location = (new Point(ClientSize.Width / 2, 0)),   //topleft point is 50% van width
                 Name = "pic"
             };
+            pic.BackColor = Color.White;
             bmp = new Bitmap(pic.Width, pic.Height);
             this.UseJaggedArray(bmp);
             pic.Image = bmp;
-            pic.MouseClick += this.ZoomClick;
 
             //labels en textboxes
             Label lbl_X = new Label
@@ -89,7 +95,7 @@ namespace Mandelbrot
                 Text = "Schaal:",
                 Font = lblFont,
                 Size = lbl_Y.Size,
-                Location = new Point(lbl_Y.Location.X + lbl_Y.Width - lbl_Y.Width + 3, lbl_Y.Location.Y + lbl_Y.Height + 50),
+                Location = new Point(lbl_Y.Location.X + 3, lbl_Y.Location.Y + lbl_Y.Height + 50),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent,
                 TextAlign = ContentAlignment.MiddleRight,
@@ -109,7 +115,7 @@ namespace Mandelbrot
                 Text = "max:",
                 Font = lblFont,
                 Size = lbl_schaal.Size,
-                Location = new Point(lbl_schaal.Location.X + lbl_schaal.Width - lbl_schaal.Width + 2, lbl_schaal.Location.Y + lbl_schaal.Height + 20),
+                Location = new Point(lbl_schaal.Location.X + 2, lbl_schaal.Location.Y + lbl_schaal.Height + 20),
                 ForeColor = Color.White,
                 BackColor = Color.Transparent,
                 TextAlign = ContentAlignment.MiddleRight,
@@ -124,7 +130,26 @@ namespace Mandelbrot
                 Width = 2 * lbl_Y.Width,
                 Font = txtFont
             };
+            ComboBox cmb_kleur = new ComboBox
+            {
+                Location = new Point(txt_max.Location.X, txt_max.Location.Y + 50),
+                Size = txt_max.Size,
+                Font = txtFont,
+                DataSource = Enum.GetValues(typeof(ColorMode)),
+                SelectedItem = currentColorMode
+            };
 
+            Label lbl_kleur = new Label
+            {
+                Text = "Kleur:",
+                Font = lblFont,
+                Size = lbl_max.Size,
+                Location = new Point(lbl_max.Location.X + 2, cmb_kleur.Location.Y + 2),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
+                TextAlign = ContentAlignment.MiddleRight,
+                Visible = true
+            };
             Button btn_teken = new Button
             {
                 Text = "Bereken en Teken!",
@@ -134,7 +159,11 @@ namespace Mandelbrot
                 ForeColor = Color.Black,
                 Font = lblFont
             };
+
             btn_teken.Click += this.ButtonClick;
+            cmb_kleur.SelectedValueChanged += this.Cmb_kleur_SelectedValueChanged;
+            pic.MouseClick += this.ZoomClick;
+
 
 
             this.Controls.Add(pic);
@@ -147,7 +176,15 @@ namespace Mandelbrot
             this.Controls.Add(txt_max);
             this.Controls.Add(txt_schaal);
             this.Controls.Add(btn_teken);
+            this.Controls.Add(cmb_kleur);
+            this.Controls.Add(lbl_kleur);
             this.ResumeLayout();
+        }
+
+        private void Cmb_kleur_SelectedValueChanged(object sender, EventArgs e)
+        {
+            ComboBox temp = (ComboBox)sender;
+            this.currentColorMode = (ColorMode)temp.SelectedValue;
         }
 
         private void ZoomClick(object sender, MouseEventArgs mea)
@@ -196,8 +233,6 @@ namespace Mandelbrot
             }
 
             double min_X = centerX - (bmp.Width / 2 * scale); //minvalue for x coordinate
-            //double max_X = centerX + (bmp.Height / 2 * scale);
-            //double min_Y = centerY - (bmp.Height / 2 * scale); //minvalue for y coordinate
             double max_Y = centerY + (bmp.Height / 2 * scale);
 
 
@@ -214,17 +249,38 @@ namespace Mandelbrot
             {
                 for (int y = 0; y < array[x].Length; y++)
                 {
-                    if (Convert.ToInt32(array[x][y]) % 2 == 0) //als mandelgetal even is
+                    switch (currentColorMode)
                     {
-                        bmp.SetPixel(x, y, Color.White);
-                    }
-                    else
-                    {
-                        bmp.SetPixel(x, y, Color.Black);
+                        case ColorMode.zwartwit:
+                            if (Convert.ToInt32(array[x][y]) % 2 == 0) //als mandelgetal even is
+                            {
+                                bmp.SetPixel(x, y, Color.Black);
+                            }
+                            else
+                            {
+                                bmp.SetPixel(x, y, Color.White);
+                            }
+                            break;
+                        case ColorMode.grijsschaal:
+                            //if (array[x][y] < maximumCount)
+                            //{
+                                int value = Convert.ToInt32(array[x][y] / maximumCount * 255);
+                                bmp.SetPixel(x, y, Color.FromArgb(value,0,0,0));
+                            //}
+                            //else
+                            //{
+                            //    bmp.SetPixel(x, y, Color.White);
+                            //}
+                            break;
+                        default:
+                            MessageBox.Show("Er ging iets fout tijdens het lezen van de kleurmodus",
+                                "Oeps",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                            break;
                     }
                 }
             }
-            //TODO: performance optimization with Bitmap.LockBytes?
         }
 
         private void ButtonClick(object o, EventArgs e)
@@ -250,3 +306,4 @@ namespace Mandelbrot
         }
     }
 }
+
