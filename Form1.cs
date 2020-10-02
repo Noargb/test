@@ -13,7 +13,10 @@ namespace Mandelbrot
         private enum ColorMode
         {
             zwartwit,
-            grijsschaal
+            grijsschaal,
+            rood,
+            groen,
+            blauw
         }
         private float centerX { get; set; } = 0;
         private float centerY { get; set; } = 0;
@@ -136,8 +139,12 @@ namespace Mandelbrot
                 Size = txt_max.Size,
                 Font = txtFont,
                 DataSource = Enum.GetValues(typeof(ColorMode)),
-                SelectedItem = currentColorMode
+                SelectedItem = currentColorMode,
+                AutoCompleteMode = AutoCompleteMode.SuggestAppend,
+                DropDownStyle = ComboBoxStyle.DropDownList
             };
+            cmb_kleur.DropDownHeight = cmb_kleur.ItemHeight * 3;
+            
 
             Label lbl_kleur = new Label
             {
@@ -262,15 +269,20 @@ namespace Mandelbrot
                             }
                             break;
                         case ColorMode.grijsschaal:
-                            //if (array[x][y] < maximumCount)
-                            //{
-                                int value = Convert.ToInt32(array[x][y] / maximumCount * 255);
-                                bmp.SetPixel(x, y, Color.FromArgb(value,0,0,0));
-                            //}
-                            //else
-                            //{
-                            //    bmp.SetPixel(x, y, Color.White);
-                            //}
+                            int value = Convert.ToInt32(array[x][y] / maximumCount * 255);
+                            bmp.SetPixel(x, y, Color.FromArgb(value, 0, 0, 0));
+                            break;
+                        case ColorMode.rood:
+                            value = Convert.ToInt32(array[x][y] / maximumCount * 255);
+                            bmp.SetPixel(x, y, Color.FromArgb(value, 0, 0));
+                            break;
+                        case ColorMode.groen:
+                            value = Convert.ToInt32(array[x][y] / maximumCount * 255);
+                            bmp.SetPixel(x, y, Color.FromArgb(0, value, 0));
+                            break;
+                        case ColorMode.blauw:
+                            value = Convert.ToInt32(array[x][y] / maximumCount * 255);
+                            bmp.SetPixel(x, y, Color.FromArgb(0, 0, value));
                             break;
                         default:
                             MessageBox.Show("Er ging iets fout tijdens het lezen van de kleurmodus",
